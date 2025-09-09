@@ -1,1 +1,153 @@
+PROBLEM 01 : IQR - Inter Quantile Range
+
+import pandas as pd
+import numpy as np
+import seaborn as sns
+
+# Step 1: Load any dataset (example: tips dataset from seaborn)
+df = sns.load_dataset("tips")
+
+# Step 2: Select the numeric columns only
+numeric_cols = df.select_dtypes(include=[np.number])
+
+# Step 3: Apply IQR for each numeric column
+for col in numeric_cols.columns:
+    Q1 = numeric_cols[col].quantile(0.25)   # 25th percentile
+    Q3 = numeric_cols[col].quantile(0.75)   # 75th percentile
+    IQR = Q3 - Q1                           # Interquartile range
+    
+    # Outlier boundaries
+    lower_bound = Q1 - 1.5 * IQR
+    upper_bound = Q3 + 1.5 * IQR
+    
+    # Find outliers
+    outliers = numeric_cols[(numeric_cols[col] < lower_bound) | (numeric_cols[col] > upper_bound)]
+    
+    print(f"\nColumn: {col}")
+    print(f"Q1 = {Q1}, Q3 = {Q3}, IQR = {IQR}")
+    print(f"Lower Bound = {lower_bound}, Upper Bound = {upper_bound}")
+    print(f"Number of Outliers = {outliers.shape[0]}")
+    print(outliers[[col]])
+
+Q1 (25th percentile) and Q3 (75th percentile) are calculated.
+
+IQR = Q3 – Q1
+
+Anything below (Q1 – 1.5×IQR) or above (Q3 + 1.5×IQR) is an outlier.
+
+Prints outliers for each numeric column.
+
+
+
+PROBLEM 02 : Z-Score
+
+
+import pandas as pd
+import numpy as np
+import seaborn as sns
+
+# Step 1: Load dataset (example: tips dataset from seaborn)
+df = sns.load_dataset("tips")
+
+# Step 2: Select numeric columns only
+numeric_cols = df.select_dtypes(include=[np.number])
+
+# Step 3: Apply Z-score for each numeric column
+for col in numeric_cols.columns:
+    mean = numeric_cols[col].mean()
+    std = numeric_cols[col].std()
+    
+    # Calculate Z-scores
+    z_scores = (numeric_cols[col] - mean) / std
+    
+    # Find outliers (|Z| > 3)
+    outliers = numeric_cols[np.abs(z_scores) > 3]
+    
+    print(f"\nColumn: {col}")
+    print(f"Mean = {mean}, Std Dev = {std}")
+    print(f"Number of Outliers = {outliers.shape[0]}")
+    print(outliers[[col]])
+
+
+
+
+PROBLE 03 : EDA - Label Encoding
+
+
+
+
+import pandas as pd
+from sklearn.preprocessing import LabelEncoder
+
+# Sample dataset
+data = {
+    "Name": ["Alice", "Bob", "Charlie", "David"],
+    "City": ["Delhi", "Mumbai", "Delhi", "Chennai"],
+    "Gender": ["Female", "Male", "Male", "Male"]
+}
+
+df = pd.DataFrame(data)
+print("Original DataFrame:\n", df)
+
+# Initialize LabelEncoder
+le = LabelEncoder()
+
+# Apply label encoding on one column (example: Gender)
+df["Gender_encoded"] = le.fit_transform(df["Gender"])
+print("\nAfter Label Encoding (Gender):\n", df)
+
+# Apply on multiple categorical columns
+for col in ["Name", "City"]:
+    df[col + "_encoded"] = le.fit_transform(df[col])
+
+print("\nDataFrame with Encoded Columns:\n", df)
+
+
+
+
+Female → 0, Male → 1 (order depends on alphabetical sorting).
+
+Each categorical column can be encoded separately.
+
+If you have nominal categories (like cities), One-Hot Encoding is usually better (so numbers don’t imply order).
+
+
+
+
+
+
+PROBLEM 04 : One Hot Shot
+
+
+
+
+import pandas as pd
+
+data = {
+    "City": ["Delhi", "Mumbai", "Chennai", "Delhi", "Mumbai"],
+    "Gender": ["Male", "Female", "Female", "Male", "Male"]
+}
+
+df = pd.DataFrame(data)
+print("Original DataFrame:\n", df)
+
+# One Hot Encoding using pandas
+df_encoded = pd.get_dummies(df, columns=["City", "Gender"])
+print("\nAfter One-Hot Encoding:\n", df_encoded)
+
+
+
+
+
+Converts categorical variables into binary (0/1) columns.
+
+Example: "City" = Delhi, Mumbai, Chennai →
+
+Delhi → [1,0,0]
+
+Mumbai → [0,1,0]
+
+Chennai → [0,0,1]
+
+This avoids giving categories a “numeric order” like LabelEncoder does.
 
